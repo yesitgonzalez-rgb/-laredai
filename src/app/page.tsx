@@ -114,11 +114,11 @@ function FloatingWhatsApp() {
     : `${WA_URL}?text=${WA_MSG}`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-6 right-4 sm:right-6 z-[9999] flex flex-col items-end gap-3">
 
       {/* ── Popup chat ── */}
       <div
-        className={`w-80 bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.18)] overflow-hidden transition-all duration-300 origin-bottom-right ${
+        className={`w-[calc(100vw-32px)] sm:w-80 bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.18)] overflow-hidden transition-all duration-300 origin-bottom-right ${
           open
             ? "opacity-100 scale-100 translate-y-0"
             : "opacity-0 scale-90 translate-y-4 pointer-events-none"
@@ -244,7 +244,8 @@ function FloatingWhatsApp() {
       <button
         onClick={() => setOpen(!open)}
         aria-label={open ? "Cerrar WhatsApp" : "Abrir WhatsApp"}
-        className="relative flex items-center justify-center w-16 h-16 rounded-full bg-[#25D366] text-white shadow-[0_8px_32px_rgba(37,211,102,0.5)] hover:shadow-[0_12px_48px_rgba(37,211,102,0.7)] hover:scale-110 transition-all duration-300"
+        style={{ touchAction: "manipulation" }}
+        className="relative flex items-center justify-center w-16 h-16 rounded-full bg-[#25D366] text-white shadow-[0_8px_32px_rgba(37,211,102,0.5)] hover:shadow-[0_12px_48px_rgba(37,211,102,0.7)] hover:scale-110 transition-all duration-300 select-none"
       >
         {/* Anillo pulsante — solo cuando está cerrado */}
         {!open && (
