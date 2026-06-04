@@ -287,6 +287,7 @@ function NavBar() {
           <a href="#como-funciona" className="hover:text-[#2BB89A] transition-colors">Cómo funciona</a>
           <a href="#resultados" className="hover:text-[#2BB89A] transition-colors">Resultados</a>
           <a href="#faq" className="hover:text-[#2BB89A] transition-colors">FAQ</a>
+          <a href="#nosotros" className="hover:text-[#2BB89A] transition-colors">Nosotros</a>
         </nav>
 
         {/* CTA */}
@@ -319,6 +320,7 @@ function NavBar() {
           <a href="#como-funciona" onClick={() => setOpen(false)} className="text-gray-700 hover:text-[#2BB89A]">Cómo funciona</a>
           <a href="#resultados" onClick={() => setOpen(false)} className="text-gray-700 hover:text-[#2BB89A]">Resultados</a>
           <a href="#faq" onClick={() => setOpen(false)} className="text-gray-700 hover:text-[#2BB89A]">FAQ</a>
+          <a href="#nosotros" onClick={() => setOpen(false)} className="text-gray-700 hover:text-[#2BB89A]">Nosotros</a>
           <a
             href={`${WA_URL}?text=${WA_MSG}`}
             target="_blank"
@@ -585,7 +587,7 @@ export default function Home() {
                       src={ind.img}
                       alt={ind.label}
                       fill
-                      className="object-cover object-center group-hover:scale-103 transition-transform duration-500"
+                      className="object-cover object-top group-hover:scale-103 transition-transform duration-500"
                       sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
                     />
                   </div>
@@ -791,6 +793,70 @@ export default function Home() {
               {faqs.map((f) => (
                 <FaqItem key={f.q} q={f.q} a={f.a} />
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── NOSOTROS ── */}
+        <section className="py-24 bg-white" id="nosotros">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <span className="text-[#2BB89A] font-semibold text-sm uppercase tracking-widest">El equipo</span>
+              <h2 className="font-display font-extrabold text-[#0D2621] text-4xl sm:text-5xl mt-3">
+                La persona detrás de cada solución
+              </h2>
+            </div>
+
+            <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 bg-[#F0FAF7] rounded-3xl p-8 lg:p-14 border border-[#2BB89A]/15">
+              {/* Foto */}
+              <div className="flex-shrink-0">
+                <div className="relative w-52 h-52 lg:w-64 lg:h-64 rounded-full overflow-hidden border-4 border-[#2BB89A]/30 shadow-xl">
+                  <Image
+                    src="/images/yesit-gonzalez.png"
+                    alt="Yesit González Pedraza — Fundador de La Red AI"
+                    fill
+                    className="object-cover object-top"
+                    sizes="(max-width: 1024px) 208px, 256px"
+                    priority
+                  />
+                </div>
+              </div>
+
+              {/* Info */}
+              <div className="flex-1 text-center lg:text-left">
+                <span className="text-[#2BB89A] text-xs font-bold uppercase tracking-widest mb-2 block">— Fundador</span>
+                <h3 className="font-display font-extrabold text-[#0D2621] text-3xl lg:text-4xl mb-1">
+                  Yesit González Pedraza
+                </h3>
+                <p className="text-[#2BB89A] font-bold text-sm uppercase tracking-wider mb-1">
+                  Consultor IA · Fundador de La Red AI
+                </p>
+                <p className="text-gray-500 text-sm italic mb-5">
+                  Campañas Meta Ads · Meta Business · Automatización · Creador de Sitios Web
+                </p>
+                <p className="text-gray-600 text-base leading-relaxed mb-7 max-w-xl">
+                  Especialista en automatización de procesos y marketing digital para el sector salud. Con experiencia en herramientas como Make, ManyChat, WhatsApp Business API y Meta Ads, ayudo a consultorios, clínicas e IPS a transformar su gestión y multiplicar su impacto — desde el primer mes.
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center lg:justify-start mb-8">
+                  {["Automatización", "Meta Ads", "IA Aplicada", "Sector Salud", "Bogotá, Colombia"].map((tag) => (
+                    <span
+                      key={tag}
+                      className="bg-[#2BB89A]/10 text-[#2BB89A] border border-[#2BB89A]/20 text-xs font-semibold px-4 py-1.5 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <a
+                  href={`${WA_URL}?text=${encodeURIComponent("Hola Yesit! Vi tu perfil en laredai.agency y quiero hablar contigo sobre automatización para mi negocio. 🤖")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#2BB89A] text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-[#1d9e82] transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                >
+                  <MessageCircle size={16} />
+                  Hablar directamente con Yesit
+                </a>
+              </div>
             </div>
           </div>
         </section>
