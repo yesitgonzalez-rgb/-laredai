@@ -515,7 +515,7 @@ export default function Home() {
               </div>
 
               {/* Headline */}
-              <h1 className="font-display font-extrabold text-[#0D2621] text-5xl sm:text-6xl lg:text-7xl leading-tight tracking-tight mb-6">
+              <h1 className="font-display font-extrabold text-[#0D2621] text-4xl sm:text-6xl lg:text-7xl leading-tight tracking-tight mb-6">
                 Tu negocio trabaja.
                 <br />
                 <span className="text-[#2BB89A]">Tus clientes, atendidos.</span>
@@ -868,7 +868,7 @@ export default function Home() {
             <span className="inline-flex items-center gap-2 bg-[#2BB89A]/20 text-[#2BB89A] font-semibold text-xs uppercase tracking-widest px-4 py-2 rounded-full mb-8">
               <Zap size={12} /> Da el primer paso hoy
             </span>
-            <h2 className="font-display font-extrabold text-white text-5xl sm:text-6xl leading-tight mb-6">
+            <h2 className="font-display font-extrabold text-white text-4xl sm:text-5xl sm:text-6xl leading-tight mb-6">
               Tu competencia ya
               <br />
               está automatizando.
