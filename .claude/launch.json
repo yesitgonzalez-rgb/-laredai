@@ -5,7 +5,8 @@
       "name": "laredai-dev",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "port": 3001
+      "cwd": "D:\\Datos\\Documentos\\AAAA 2026 INTELIGENCIA ES\\RED AI\\META CLAUDE CODE\\claude-webkit\\laredai",
+      "port": 3000
     }
   ]
 }

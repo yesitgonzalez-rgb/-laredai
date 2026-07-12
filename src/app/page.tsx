@@ -266,6 +266,217 @@ function FloatingWhatsApp() {
   );
 }
 
+/* ── Widget flotante Chat IA (red-ai-bot) ── */
+const AI_CHAT_ENDPOINT = "https://red-ai-bot.yesitgonzalez.workers.dev";
+
+type AiChatMessage = { role: "user" | "assistant"; text: string };
+
+function FloatingChatAI() {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState<AiChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Scroll al último mensaje
+  useEffect(() => {
+    if (open) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [open, messages, loading, error]);
+
+  const handleSend = async () => {
+    const text = input.trim();
+    if (!text || loading) return;
+
+    setMessages((prev) => [...prev, { role: "user", text }]);
+    setInput("");
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(AI_CHAT_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", text: data.reply ?? "Sin respuesta del asistente." },
+      ]);
+    } catch {
+      setError("No pude conectar, intenta de nuevo.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed bottom-24 right-4 sm:right-6 z-[9999] flex flex-col items-end gap-3">
+
+      {/* ── Popup chat ── */}
+      <div
+        className={`w-[calc(100vw-32px)] sm:w-80 bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.18)] overflow-hidden transition-all duration-300 origin-bottom-right ${
+          open
+            ? "opacity-100 scale-100 translate-y-0"
+            : "opacity-0 scale-90 translate-y-4 pointer-events-none"
+        }`}
+      >
+        {/* Header verde-agua */}
+        <div className="bg-[#2BB89A] px-4 py-4 flex items-center gap-3">
+          <div className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+            <Bot size={22} className="text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-white text-sm leading-tight">Asistente IA</p>
+            <p className="text-white/80 text-xs">La Red AI · Respuestas al instante</p>
+            <div className="flex items-center gap-1 mt-0.5">
+              <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+              <span className="text-white/70 text-[10px]">En línea</span>
+            </div>
+          </div>
+          <button
+            onClick={() => setOpen(false)}
+            aria-label="Cerrar chat IA"
+            className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors flex-shrink-0"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Área de conversación */}
+        <div className="bg-[#F0FAF7] px-4 py-4 flex flex-col gap-3 max-h-72 overflow-y-auto">
+
+          {/* Mensaje inicial del bot */}
+          <div className="flex items-end gap-2">
+            <div className="w-7 h-7 rounded-full bg-[#2BB89A] flex items-center justify-center flex-shrink-0">
+              <Bot size={14} className="text-white" />
+            </div>
+            <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm max-w-[85%]">
+              <p className="text-[#0D2621] text-sm leading-relaxed">
+                🤖 ¡Hola! Soy el asistente IA de <strong>La Red AI</strong>.
+              </p>
+              <p className="text-[#0D2621] text-sm leading-relaxed mt-1">
+                Pregúntame lo que quieras sobre nuestros servicios.
+              </p>
+              <p className="text-gray-400 text-[10px] mt-1.5 text-right">ahora</p>
+            </div>
+          </div>
+
+          {/* Historial de mensajes */}
+          {messages.map((m, i) =>
+            m.role === "user" ? (
+              <div key={i} className="flex justify-end">
+                <div className="bg-[#D9F2EA] rounded-2xl rounded-tr-sm px-4 py-2.5 shadow-sm max-w-[80%]">
+                  <p className="text-[#0D2621] text-sm">{m.text}</p>
+                  <p className="text-gray-400 text-[10px] mt-1 text-right">ahora ✓✓</p>
+                </div>
+              </div>
+            ) : (
+              <div key={i} className="flex items-end gap-2">
+                <div className="w-7 h-7 rounded-full bg-[#2BB89A] flex items-center justify-center flex-shrink-0">
+                  <Bot size={14} className="text-white" />
+                </div>
+                <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm max-w-[85%]">
+                  <p className="text-[#0D2621] text-sm leading-relaxed whitespace-pre-wrap">{m.text}</p>
+                  <p className="text-gray-400 text-[10px] mt-1.5 text-right">ahora</p>
+                </div>
+              </div>
+            )
+          )}
+
+          {/* Indicador "escribiendo..." */}
+          {loading && (
+            <div className="flex items-end gap-2">
+              <div className="w-7 h-7 rounded-full bg-[#2BB89A] flex items-center justify-center flex-shrink-0">
+                <Bot size={14} className="text-white" />
+              </div>
+              <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+                <div className="flex items-center gap-1">
+                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Error de red */}
+          {error && (
+            <div className="flex items-end gap-2">
+              <div className="w-7 h-7 rounded-full bg-red-400 flex items-center justify-center flex-shrink-0">
+                <Bot size={14} className="text-white" />
+              </div>
+              <div className="bg-red-50 border border-red-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm max-w-[85%]">
+                <p className="text-red-600 text-sm">{error}</p>
+              </div>
+            </div>
+          )}
+
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Campo de entrada */}
+        <div className="bg-white px-3 py-3 border-t border-gray-100">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
+              placeholder="Escribe tu mensaje..."
+              disabled={loading}
+              className="flex-1 bg-[#F0FAF7] border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-[#0D2621] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2BB89A]/40 disabled:opacity-60"
+            />
+            <button
+              onClick={handleSend}
+              disabled={loading || !input.trim()}
+              aria-label="Enviar mensaje"
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#2BB89A] text-white hover:bg-[#249e84] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+            >
+              <ArrowRight size={18} />
+            </button>
+          </div>
+          <p className="text-center text-gray-400 text-[10px] mt-2">
+            Powered by <span className="text-[#2BB89A] font-semibold">La Red AI</span>
+          </p>
+        </div>
+      </div>
+
+      {/* ── Botón flotante ── */}
+      <button
+        onClick={() => setOpen(!open)}
+        aria-label={open ? "Cerrar asistente IA" : "Abrir asistente IA"}
+        style={{ touchAction: "manipulation" }}
+        className="relative flex items-center justify-center w-16 h-16 rounded-full bg-[#2BB89A] text-white shadow-[0_8px_32px_rgba(43,184,154,0.5)] hover:shadow-[0_12px_48px_rgba(43,184,154,0.7)] hover:scale-110 transition-all duration-300 select-none"
+      >
+        {/* Anillo pulsante — solo cuando está cerrado */}
+        {!open && (
+          <>
+            <span className="absolute inset-0 rounded-full bg-[#2BB89A] animate-ping opacity-25" />
+            <span className="absolute inset-[-5px] rounded-full border-2 border-[#2BB89A]/30 animate-pulse" />
+          </>
+        )}
+        {/* Ícono con transición */}
+        <span className={`transition-all duration-200 ${open ? "rotate-90 scale-90" : "rotate-0 scale-100"}`}>
+          {open
+            ? <span className="text-xl font-bold leading-none">✕</span>
+            : <Bot size={30} />
+          }
+        </span>
+      </button>
+    </div>
+  );
+}
+
 function NavBar() {
   const [open, setOpen] = useState(false);
   return (
@@ -287,6 +498,7 @@ function NavBar() {
           <a href="#servicios" className="hover:text-[#2BB89A] transition-colors">Servicios</a>
           <a href="#como-funciona" className="hover:text-[#2BB89A] transition-colors">Cómo funciona</a>
           <a href="#resultados" className="hover:text-[#2BB89A] transition-colors">Resultados</a>
+          <a href="#precios" className="hover:text-[#2BB89A] transition-colors">Precios</a>
           <a href="#faq" className="hover:text-[#2BB89A] transition-colors">FAQ</a>
           <a href="#nosotros" className="hover:text-[#2BB89A] transition-colors">Nosotros</a>
         </nav>
@@ -471,7 +683,7 @@ const faqs = [
   },
   {
     q: "¿Cuánto cuesta implementar una solución?",
-    a: "Depende del proyecto. Tenemos soluciones desde precios muy accesibles para emprendedores hasta desarrollos empresariales completos. Escríbenos para un diagnóstico gratuito y presupuesto a medida.",
+    a: "El total del primer mes (configuración + mensualidad) es: $783.000 COP para el plan Chatbot Básico, $2.172.000 COP para Automatización Completa, y $4.250.000 COP para Solución Empresarial. El diagnóstico inicial es siempre gratuito.",
   },
 ];
 
@@ -565,6 +777,32 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ── PROMOCIONES ── */}
+        <section className="py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {[
+                { src: "/images/promo-1.png", alt: "Automatización servicio al cliente La Red AI" },
+                { src: "/images/promo-2.png", alt: "Automatización La Red AI" },
+                { src: "/images/promo-3.png", alt: "La Red AI Auditoría Digital Gratis" },
+              ].map((img) => (
+                <div
+                  key={img.src}
+                  className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
+                >
+                  <Image
+                    src={img.src}
+                    alt={img.alt}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width:640px) 100vw, 33vw"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ── INDUSTRIAS ── */}
         <section className="py-20 bg-[#0D2621]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -654,6 +892,83 @@ export default function Home() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── TECNOLOGÍA QUE USAMOS ── */}
+        <section className="py-16 bg-[#0D2621] overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p className="text-center text-[#2BB89A] font-semibold text-xs uppercase tracking-widest mb-10">
+              Tecnología que usamos
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-10 md:gap-16">
+
+              {/* Make */}
+              <div className="flex flex-col items-center gap-2 opacity-60 hover:opacity-100 transition-opacity duration-300">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="48" height="48" rx="12" fill="white" fillOpacity="0.08"/>
+                  <path d="M14 24C14 18.477 18.477 14 24 14s10 4.477 10 10-4.477 10-10 10S14 29.523 14 24z" stroke="white" strokeWidth="2" fill="none"/>
+                  <path d="M20 24l3 3 5-6" stroke="#2BB89A" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span className="text-white text-xs font-semibold tracking-wide">Make</span>
+              </div>
+
+              {/* ManyChat */}
+              <div className="flex flex-col items-center gap-2 opacity-60 hover:opacity-100 transition-opacity duration-300">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="48" height="48" rx="12" fill="white" fillOpacity="0.08"/>
+                  <path d="M12 20c0-3.314 2.686-6 6-6h12c3.314 0 6 2.686 6 6v6c0 3.314-2.686 6-6 6h-2l-4 4-4-4h-2c-3.314 0-6-2.686-6-6v-6z" stroke="white" strokeWidth="2" fill="none"/>
+                  <circle cx="19" cy="23" r="1.5" fill="white"/>
+                  <circle cx="24" cy="23" r="1.5" fill="white"/>
+                  <circle cx="29" cy="23" r="1.5" fill="white"/>
+                </svg>
+                <span className="text-white text-xs font-semibold tracking-wide">ManyChat</span>
+              </div>
+
+              {/* WhatsApp Business */}
+              <div className="flex flex-col items-center gap-2 opacity-60 hover:opacity-100 transition-opacity duration-300">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="48" height="48" rx="12" fill="white" fillOpacity="0.08"/>
+                  <path d="M24 12C17.373 12 12 17.373 12 24c0 2.12.555 4.11 1.527 5.838L12 36l6.337-1.505A11.94 11.94 0 0024 36c6.627 0 12-5.373 12-12S30.627 12 24 12z" stroke="white" strokeWidth="2" fill="none"/>
+                  <path d="M20 21.5c0-.5.5-1.5 1.5-1.5.4 0 .7.2.8.5l.9 2c.1.3 0 .6-.2.8l-.7.7c.5 1 1.5 2 2.5 2.5l.7-.7c.2-.2.5-.3.8-.2l2 .9c.3.1.5.4.5.8 0 1-.5 1.5-1.5 1.7C24 29 20 26 20 21.5z" fill="white"/>
+                </svg>
+                <span className="text-white text-xs font-semibold tracking-wide">WhatsApp Business</span>
+              </div>
+
+              {/* Meta Ads */}
+              <div className="flex flex-col items-center gap-2 opacity-60 hover:opacity-100 transition-opacity duration-300">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="48" height="48" rx="12" fill="white" fillOpacity="0.08"/>
+                  <path d="M14 24c0-2.8 1.6-5 4-5 1.4 0 2.6.8 3.8 2.4C23 19.8 24.5 19 26 19c2.4 0 4 2.2 4 5s-1.6 5-4 5c-1.5 0-3-.8-4.2-2.4C20.6 28.2 19.4 29 18 29c-2.4 0-4-2.2-4-5z" stroke="white" strokeWidth="2" fill="none"/>
+                </svg>
+                <span className="text-white text-xs font-semibold tracking-wide">Meta Ads</span>
+              </div>
+
+              {/* Cal.com */}
+              <div className="flex flex-col items-center gap-2 opacity-60 hover:opacity-100 transition-opacity duration-300">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="48" height="48" rx="12" fill="white" fillOpacity="0.08"/>
+                  <rect x="13" y="16" width="22" height="20" rx="3" stroke="white" strokeWidth="2" fill="none"/>
+                  <path d="M13 22h22" stroke="white" strokeWidth="2"/>
+                  <path d="M19 13v6M29 13v6" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="19" cy="28" r="1.5" fill="white"/>
+                  <circle cx="24" cy="28" r="1.5" fill="white"/>
+                  <circle cx="29" cy="28" r="1.5" fill="white"/>
+                </svg>
+                <span className="text-white text-xs font-semibold tracking-wide">Cal.com</span>
+              </div>
+
+              {/* Claude Code AI */}
+              <div className="flex flex-col items-center gap-2 opacity-60 hover:opacity-100 transition-opacity duration-300">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="48" height="48" rx="12" fill="white" fillOpacity="0.08"/>
+                  <path d="M24 13l9 5.2v10.4L24 34l-9-5.4V18.2L24 13z" stroke="white" strokeWidth="2" fill="none" strokeLinejoin="round"/>
+                  <path d="M20 24l2.5 2.5L28 21" stroke="#2BB89A" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span className="text-white text-xs font-semibold tracking-wide">Claude Code AI</span>
+              </div>
+
             </div>
           </div>
         </section>
@@ -778,6 +1093,99 @@ export default function Home() {
               <MessageCircle size={20} />
               Escribir ahora por WhatsApp
             </a>
+          </div>
+        </section>
+
+        {/* ── PRECIOS ── */}
+        <section className="py-24 bg-[#0D2621]" id="precios">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-14">
+              <span className="text-[#2BB89A] font-semibold text-sm uppercase tracking-widest">Planes &amp; Inversión</span>
+              <h2 className="font-display font-extrabold text-white text-4xl sm:text-5xl mt-3 mb-4">
+                Cuánto cuesta — sin rodeos
+              </h2>
+              <p className="text-gray-400 max-w-xl mx-auto text-base">
+                Rangos reales para que sepas si encajamos antes de escribir. El precio exacto depende de tu caso — el diagnóstico es gratis.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+
+              {/* Plan Arranque */}
+              <div className="rounded-3xl p-8 border border-white/10 bg-white/5 flex flex-col">
+                <span className="text-[#2BB89A] text-xs font-bold uppercase tracking-wider mb-3">Emprendedor</span>
+                <div className="mb-1">
+                  <span className="text-white font-display font-extrabold text-4xl">$783K</span>
+                </div>
+                <p className="text-gray-400 text-xs mb-1">$783.000 COP · total primer mes</p>
+                <p className="text-gray-500 text-xs mb-6">(configuración + primera mensualidad)</p>
+                <h3 className="font-display font-bold text-white text-xl mb-4">Chatbot Básico</h3>
+                <ul className="flex flex-col gap-3 flex-1 mb-8">
+                  {["Chatbot WhatsApp Business", "Respuestas automáticas 24/7", "Hasta 500 conversaciones/mes", "Configuración incluida", "Soporte por WhatsApp"].map(f => (
+                    <li key={f} className="flex items-start gap-2 text-gray-300 text-sm">
+                      <svg className="w-4 h-4 text-[#2BB89A] mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <a href={`https://wa.me/573002359006?text=${encodeURIComponent('Hola! Me interesa el plan Chatbot Básico. ¿Podemos hablar?')}`} target="_blank" rel="noopener noreferrer"
+                  className="text-center border border-[#2BB89A] text-[#2BB89A] px-6 py-3 rounded-full font-bold text-sm hover:bg-[#2BB89A] hover:text-white transition-all duration-200">
+                  Consultar este plan
+                </a>
+              </div>
+
+              {/* Plan Profesional — destacado */}
+              <div className="rounded-3xl p-8 border-2 border-[#2BB89A] bg-[#2BB89A]/10 flex flex-col relative">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#2BB89A] text-white text-xs font-bold px-4 py-1 rounded-full">Más elegido</span>
+                <span className="text-[#2BB89A] text-xs font-bold uppercase tracking-wider mb-3">Negocio en crecimiento</span>
+                <div className="mb-1">
+                  <span className="text-white font-display font-extrabold text-4xl">$2.172K</span>
+                </div>
+                <p className="text-gray-400 text-xs mb-1">$2.172.000 COP · total primer mes</p>
+                <p className="text-gray-500 text-xs mb-6">(configuración + primera mensualidad)</p>
+                <h3 className="font-display font-bold text-white text-xl mb-4">Automatización Completa</h3>
+                <ul className="flex flex-col gap-3 flex-1 mb-8">
+                  {["Chatbot + agenda automática", "Integración Make + Cal.com", "Meta Ads conectado", "ManyChat flows", "Conversaciones ilimitadas", "Reportes mensuales", "Soporte prioritario"].map(f => (
+                    <li key={f} className="flex items-start gap-2 text-gray-300 text-sm">
+                      <svg className="w-4 h-4 text-[#2BB89A] mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <a href={`https://wa.me/573002359006?text=${encodeURIComponent('Hola! Me interesa el plan Automatización Completa. ¿Podemos hablar?')}`} target="_blank" rel="noopener noreferrer"
+                  className="text-center bg-[#2BB89A] text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-[#24a085] transition-all duration-200">
+                  Consultar este plan
+                </a>
+              </div>
+
+              {/* Plan Empresarial */}
+              <div className="rounded-3xl p-8 border border-white/10 bg-white/5 flex flex-col">
+                <span className="text-[#2BB89A] text-xs font-bold uppercase tracking-wider mb-3">Empresa / Clínica</span>
+                <div className="mb-1">
+                  <span className="text-white font-display font-extrabold text-4xl">$4.250K</span>
+                </div>
+                <p className="text-gray-400 text-xs mb-1">$4.250.000 COP · total primer mes</p>
+                <p className="text-gray-500 text-xs mb-6">(configuración + primera mensualidad)</p>
+                <h3 className="font-display font-bold text-white text-xl mb-4">Solución Empresarial</h3>
+                <ul className="flex flex-col gap-3 flex-1 mb-8">
+                  {["Todo lo del plan Profesional", "Agente IA personalizado", "CRM + integraciones a medida", "Landing pages & ecommerce", "Campañas Meta Ads gestionadas", "Múltiples sedes o canales", "Gerente de cuenta dedicado"].map(f => (
+                    <li key={f} className="flex items-start gap-2 text-gray-300 text-sm">
+                      <svg className="w-4 h-4 text-[#2BB89A] mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <a href={`https://wa.me/573002359006?text=${encodeURIComponent('Hola! Me interesa la Solución Empresarial. ¿Podemos hablar?')}`} target="_blank" rel="noopener noreferrer"
+                  className="text-center border border-[#2BB89A] text-[#2BB89A] px-6 py-3 rounded-full font-bold text-sm hover:bg-[#2BB89A] hover:text-white transition-all duration-200">
+                  Hablar con un asesor
+                </a>
+              </div>
+
+            </div>
+
+            <p className="text-center text-gray-500 text-sm mt-10">
+              * Precios en pesos colombianos. No incluyen presupuesto de pauta publicitaria. El diagnóstico inicial es siempre gratuito.
+            </p>
           </div>
         </section>
 
@@ -980,6 +1388,8 @@ export default function Home() {
 
       {/* ── BOTÓN FLOTANTE WHATSAPP ── */}
       <FloatingWhatsApp />
+      {/* ── BOTÓN FLOTANTE CHAT IA ── */}
+      <FloatingChatAI />
     </>
   );
 }
