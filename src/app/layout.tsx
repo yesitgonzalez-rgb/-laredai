@@ -62,6 +62,10 @@ export default function RootLayout({
       <body className="antialiased bg-white text-gray-900">
         {children}
         <Script
+          src="https://forja-starter-ff6dac.yesitgonzalez.workers.dev/widget.js"
+          strategy="lazyOnload"
+        />
+        <Script
           id="json-ld-laredai"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
