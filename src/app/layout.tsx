@@ -63,7 +63,7 @@ export default function RootLayout({
         {children}
         <Script
           src="https://forja-starter-ff6dac.yesitgonzalez.workers.dev/widget.js"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
         <Script
           id="json-ld-laredai"
